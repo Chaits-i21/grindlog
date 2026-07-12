@@ -155,6 +155,48 @@
 
   // ---- main flow ----
 
+  // Poll LeetCode's check endpoint until the judge finishes. Same-origin fetch with
+  // the user's session — independent of how the page itself retrieves results.
+  async function pollVerdict(submissionId) {
+    for (let i = 0; i < 40; i++) {
+      try {
+        const resp = await fetch(`https://leetcode.com/submissions/detail/${submissionId}/check/`, {
+          credentials: 'include',
+        });
+        if (resp.ok) {
+          const json = await resp.json();
+          if (json.state === 'SUCCESS') return json;
+        }
+      } catch { /* transient network blip — keep polling */ }
+      await new Promise((r) => setTimeout(r, 1500));
+    }
+    throw new Error('timed out waiting for the verdict');
+  }
+
+  async function handleSubmitted(p) {
+    if (!contextAlive()) return;
+    try {
+      const json = await pollVerdict(p.submissionId);
+      console.log('[Grindlog] verdict for submission', p.submissionId, '→', json.status_msg);
+      if (json.status_msg === 'Accepted') {
+        await handleAccepted({
+          ...p,
+          stats: {
+            runtime: json.status_runtime || null,
+            memory: json.status_memory || null,
+            runtimeBeats: json.runtime_percentile != null ? Math.round(json.runtime_percentile * 100) / 100 : null,
+            memoryBeats: json.memory_percentile != null ? Math.round(json.memory_percentile * 100) / 100 : null,
+          },
+        });
+      } else if (json.status_msg) {
+        await recordFailedAttempt(p.slug || currentSlug());
+      }
+    } catch (e) {
+      console.log('[Grindlog] verdict polling failed:', e.message);
+      toast(`Grindlog: ${e.message}`, false);
+    }
+  }
+
   async function handleAccepted(p) {
     if (!contextAlive()) return; // orphaned script — the fresh one will handle it
     console.log('[Grindlog] accepted event for submission', p.submissionId, p.code ? '(code captured)' : '(fetching code from API)');
@@ -227,8 +269,7 @@
 
   window.addEventListener('message', (e) => {
     if (e.source !== window || !e.data || e.data.source !== SOURCE) return;
-    if (e.data.type === 'accepted') handleAccepted(e.data.payload);
-    else if (e.data.type === 'attempt') recordFailedAttempt(e.data.payload.slug);
+    if (e.data.type === 'submitted') handleSubmitted(e.data.payload);
   });
 
   console.log('[Grindlog] content script ready on', window.location.pathname);
