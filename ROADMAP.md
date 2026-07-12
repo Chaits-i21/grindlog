@@ -9,19 +9,15 @@ window; ship it the day 1.0 is approved.**
 ## Phase 0 — Before submission (do now, ~1 day)
 
 ### Repo hygiene
-- [ ] `git init`, first commit, push to a public GitHub repo named `grindlog`
-      (claim the name even if you keep code private at first — but public is better:
-      "open source" is a trust signal for an extension that handles a GitHub token).
-- [ ] Add an MIT `LICENSE` file (expected for dev tools; enables contributions).
-- [ ] Rename the local folder `PushLeetcode` → `grindlog` (re-point the unpacked
-      extension in `chrome://extensions` afterwards).
+- [x] `git init`, first commit, pushed to https://github.com/Chaits-i21/grindlog (public).
+- [x] MIT `LICENSE` added.
+- [x] Local folder renamed `PushLeetcode` → `grindlog` — **re-point the unpacked
+      extension in `chrome://extensions` and reopen the editor at the new path.**
 
 ### Hosting (needed for the store listing)
-- [ ] GitHub Pages: Settings → Pages → deploy `docs/` (move `docs/*` to `/docs` or
-      use a `gh-pages` branch — Pages only serves `/`, `/docs`, or a branch root).
-- [ ] Verify `https://<you>.github.io/grindlog/` and `/privacy.html` load.
-- [ ] Replace `GITHUB_REPO_PLACEHOLDER` in `docs/index.html` + `docs/privacy.html`.
-      (`INSTALL_URL_PLACEHOLDER` waits until the store URL exists.)
+- [x] GitHub Pages enabled from `main:/docs` → https://chaits-i21.github.io/grindlog/
+- [x] `GITHUB_REPO_PLACEHOLDER` replaced with `Chaits-i21/grindlog`.
+      (`INSTALL_URL_PLACEHOLDER` in `docs/index.html` waits until the store URL exists.)
 
 ### Final smoke test (15 min, use a throwaway test repo)
 - [ ] Fresh install → onboarding opens → connect → solve an easy problem →
