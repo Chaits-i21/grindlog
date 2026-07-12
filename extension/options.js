@@ -167,7 +167,7 @@ $('backfill').addEventListener('click', async () => {
         failed += 1;
       }
       report();
-      await sleep(2000); // GitHub contents API throttle
+      await sleep(3000); // each push = 4 GitHub writes; stay well under 80 writes/min
     }
     report();
     backfillStatusEl.textContent += stopRequested ? ' (stopped)' : ' Done!';
