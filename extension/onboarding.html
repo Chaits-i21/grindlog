@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Welcome to Grindlog</title>
+  <style>
+    :root {
+      --bg: #14171c; --card: #1d2129; --card-border: #2b323b;
+      --text: #e8eaed; --muted: #9aa4af;
+      --green: #2cbb5d; --green-dark: #219a4b; --orange: #ff9a2a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      line-height: 1.55;
+    }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 48px 24px 96px; }
+    header { text-align: center; margin-bottom: 48px; }
+    header img { width: 96px; height: 96px; }
+    h1 { font-size: 34px; margin: 16px 0 8px; }
+    h1 .flame { color: var(--orange); }
+    .tagline { color: var(--muted); font-size: 17px; margin: 0; }
+    .step {
+      background: var(--card); border: 1px solid var(--card-border);
+      border-radius: 14px; padding: 24px 28px; margin-bottom: 20px;
+    }
+    .step h2 { font-size: 19px; margin: 0 0 10px; display: flex; align-items: center; gap: 12px; }
+    .num {
+      background: var(--green); color: #fff; width: 28px; height: 28px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 15px; font-weight: 700; flex-shrink: 0;
+    }
+    .step p, .step li { color: var(--muted); font-size: 15px; }
+    .step b, .step code { color: var(--text); }
+    code { background: #262c35; padding: 2px 7px; border-radius: 6px; font-size: 13.5px; }
+    a { color: #6ecf94; }
+    .btn {
+      display: inline-block; background: var(--green); color: #fff; text-decoration: none;
+      padding: 10px 20px; border-radius: 8px; font-size: 15px; font-weight: 600;
+      border: none; cursor: pointer; margin-top: 6px;
+    }
+    .btn:hover { background: var(--green-dark); }
+    .btn.ghost { background: transparent; border: 1px solid var(--card-border); color: var(--text); }
+    label { display: block; margin-top: 14px; font-weight: 600; font-size: 14px; }
+    input {
+      width: 100%; padding: 10px 12px; margin-top: 6px; border-radius: 8px;
+      border: 1px solid var(--card-border); background: #12151a; color: var(--text); font-size: 14px;
+    }
+    input:focus { outline: none; border-color: var(--green); }
+    #status { margin-top: 14px; font-size: 14.5px; white-space: pre-wrap; }
+    .ok { color: var(--green); } .err { color: #ef6a66; }
+    .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+    @media (max-width: 560px) { .cols { grid-template-columns: 1fr; } }
+    footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 48px; }
+    .done-hide.hidden { display: none; }
+    .celebrate {
+      background: linear-gradient(135deg, #1d2b22, #1d2129); border-color: var(--green);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <img src="icons/icon128.png" alt="Grindlog">
+      <h1>Grindlog is installed <span class="flame">🔥</span></h1>
+      <p class="tagline">Every accepted LeetCode solution — every approach — auto-committed to GitHub.<br>Three steps and you never think about it again.</p>
+    </header>
+
+    <div class="step">
+      <h2><span class="num">1</span> Create a repo for your solutions</h2>
+      <p>A fresh repo (public or private) that Grindlog will commit to. Initialize it <b>with a README</b> so it has a first commit.</p>
+      <a class="btn ghost" href="https://github.com/new" target="_blank">Create repo on GitHub ↗</a>
+    </div>
+
+    <div class="step">
+      <h2><span class="num">2</span> Create a fine-grained access token</h2>
+      <p>Grindlog pushes with your token, straight from your browser to GitHub — no servers in between.</p>
+      <ul>
+        <li><b>Repository access:</b> Only select repositories → pick the repo from step 1</li>
+        <li><b>Permissions → Contents:</b> <code>Read and write</code> (Metadata gets added automatically)</li>
+      </ul>
+      <a class="btn ghost" href="https://github.com/settings/personal-access-tokens/new" target="_blank">Create token ↗</a>
+    </div>
+
+    <div class="step" id="config-step">
+      <h2><span class="num">3</span> Connect Grindlog</h2>
+      <label for="token">Personal access token</label>
+      <input type="password" id="token" placeholder="github_pat_…">
+      <div class="cols">
+        <div>
+          <label for="owner">GitHub username</label>
+          <input type="text" id="owner" placeholder="your-username">
+        </div>
+        <div>
+          <label for="repo">Repository</label>
+          <input type="text" id="repo" placeholder="leetcode-solutions">
+        </div>
+      </div>
+      <label for="branch">Branch</label>
+      <input type="text" id="branch" value="main">
+      <p></p>
+      <button class="btn" id="save">Save &amp; test connection</button>
+      <div id="status"></div>
+    </div>
+
+    <div class="step celebrate done-hide hidden" id="done-step">
+      <h2>✅ You're all set</h2>
+      <p>Solve anything on <a href="https://leetcode.com/problemset/" target="_blank">leetcode.com</a> and hit <b>Submit</b>. On <b>Accepted</b>, a green toast confirms the push. Resubmit with a different approach any time — old solutions are never overwritten.</p>
+      <p>Already have solving history? Import it all from
+        <a href="#" id="open-options">extension settings → Import past submissions</a>.</p>
+    </div>
+
+    <footer>
+      Grindlog runs entirely in your browser. Your token lives in Chrome's extension storage
+      and only ever talks to <code>api.github.com</code>. No analytics, no servers, no accounts.
+    </footer>
+  </div>
+  <script src="onboarding.js"></script>
+</body>
+</html>

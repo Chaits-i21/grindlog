@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Grindlog — your LeetCode grind, logged to GitHub</title>
+  <meta name="description" content="Chrome extension that auto-commits every accepted LeetCode solution to GitHub — every approach, with stats, statements, attempts and streaks. Never overwritten.">
+  <link rel="icon" href="icon128.png">
+  <style>
+    :root {
+      --bg: #14171c; --card: #1d2129; --border: #2b323b;
+      --text: #e8eaed; --muted: #9aa4af;
+      --green: #2cbb5d; --green-dark: #219a4b; --orange: #ff9a2a;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; line-height: 1.6; }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+    a { color: #6ecf94; }
+
+    .hero { text-align: center; padding: 88px 0 64px; }
+    .hero img { width: 108px; height: 108px; }
+    .hero h1 { font-size: clamp(32px, 6vw, 52px); margin: 20px 0 12px; letter-spacing: -0.02em; }
+    .hero h1 em { color: var(--green); font-style: normal; }
+    .hero p { color: var(--muted); font-size: 19px; max-width: 620px; margin: 0 auto 32px; }
+    .cta { display: inline-block; background: var(--green); color: #fff; text-decoration: none; padding: 14px 30px; border-radius: 10px; font-size: 17px; font-weight: 700; }
+    .cta:hover { background: var(--green-dark); }
+    .cta-sub { display: block; margin-top: 12px; color: var(--muted); font-size: 13.5px; }
+
+    .terminal {
+      max-width: 720px; margin: 56px auto 0; text-align: left;
+      background: #0f1114; border: 1px solid var(--border); border-radius: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13.5px;
+      padding: 20px 24px; overflow-x: auto; color: #b8c0c9;
+    }
+    .terminal .c { color: #6a737d; } .terminal .g { color: var(--green); } .terminal .o { color: var(--orange); }
+
+    h2.section { text-align: center; font-size: 30px; margin: 80px 0 36px; letter-spacing: -0.01em; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; }
+    .card h3 { margin: 0 0 8px; font-size: 17px; }
+    .card p { margin: 0; color: var(--muted); font-size: 14.5px; }
+    .emoji { font-size: 26px; display: block; margin-bottom: 12px; }
+
+    .steps { counter-reset: s; max-width: 640px; margin: 0 auto; }
+    .steps .card { display: flex; gap: 18px; margin-bottom: 14px; align-items: flex-start; }
+    .steps .card::before {
+      counter-increment: s; content: counter(s);
+      background: var(--green); color: #fff; min-width: 30px; height: 30px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; font-weight: 700;
+    }
+
+    details { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; margin-bottom: 10px; max-width: 720px; margin-left: auto; margin-right: auto; }
+    summary { cursor: pointer; font-weight: 600; }
+    details p { color: var(--muted); }
+
+    footer { text-align: center; color: var(--muted); font-size: 13.5px; padding: 72px 0 40px; }
+    footer a { margin: 0 10px; }
+  </style>
+</head>
+<body>
+
+  <section class="hero wrap">
+    <img src="icon512.png" alt="Grindlog icon">
+    <h1>Your grind, <em>committed</em>.</h1>
+    <p>Grindlog auto-pushes every <b>accepted</b> LeetCode solution to your GitHub — with the problem statement, stats, attempts and streaks. Every approach kept, nothing ever overwritten.</p>
+    <a class="cta" href="#install">Add to Chrome — it's free</a>
+    <span class="cta-sub">No account. No servers. Your code goes straight from your browser to your repo.</span>
+
+    <div class="terminal">
+<pre style="margin:0"><span class="c">// 3121. Count the Number of Special Characters II  [Medium]</span>
+<span class="c">// Topics: Hash Table, String</span>
+<span class="c">// Runtime: 21 ms (beats 58.65%) | Memory: 48.27 MB (beats 38.05%)</span>
+<span class="c">// Solved in 24 min after 2 failed attempts</span>
+<span class="c">// Daily Challenge (2026-07-12) <span class="o">🔥</span></span>
+
+class Solution {
+    public int numberOfSpecialChars(String word) { <span class="g">...</span> }
+}</pre>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <h2 class="section">Not another LeetHub clone</h2>
+    <div class="grid">
+      <div class="card"><span class="emoji">🗂️</span><h3>Every approach survives</h3><p>Resubmitting adds a new timestamped file. Your brute force and your optimized solution live side by side — the whole journey, not just the last answer.</p></div>
+      <div class="card"><span class="emoji">📊</span><h3>A repo that reads like a portfolio</h3><p>Auto-generated dashboard: solved counts, streak, average attempts, per-topic index. Recruiters see a habit, not a code dump.</p></div>
+      <div class="card"><span class="emoji">📝</span><h3>Full context in every file</h3><p>Problem statement, difficulty, topics and hints in each folder's README; runtime, memory and beats-% in every file header.</p></div>
+      <div class="card"><span class="emoji">⏱️</span><h3>Honest interview prep data</h3><p>Grindlog counts your failed attempts and time-to-solve. "Solved in 24 min after 2 failed attempts" tells you what to revise.</p></div>
+      <div class="card"><span class="emoji">📦</span><h3>Backfill your history</h3><p>One click imports every past accepted submission — your repo starts full, not empty.</p></div>
+      <div class="card"><span class="emoji">🔒</span><h3>Nothing leaves your browser</h3><p>Your token stays in Chrome storage and talks only to GitHub's API. No middleman, no analytics, no account. <a href="privacy.html">Privacy policy</a>.</p></div>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <h2 class="section">Set up in two minutes</h2>
+    <div class="steps">
+      <div class="card"><div><h3>Install the extension</h3><p>The welcome page walks you through everything.</p></div></div>
+      <div class="card"><div><h3>Connect a repo</h3><p>Create a repo and a fine-grained token scoped to just that repo. Paste both in — done.</p></div></div>
+      <div class="card"><div><h3>Solve</h3><p>Hit Submit on LeetCode. On <b>Accepted</b>, Grindlog commits. That's the whole workflow.</p></div></div>
+    </div>
+  </section>
+
+  <section class="wrap" id="faq">
+    <h2 class="section">FAQ</h2>
+    <details><summary>Is my GitHub token safe?</summary><p>It's stored in Chrome's extension storage on your machine and is only ever sent to <code>api.github.com</code>. Scope it to a single repo with Contents permission and it can't touch anything else. There is no Grindlog server.</p></details>
+    <details><summary>Does it push wrong answers?</summary><p>No — only accepted submissions are pushed. Failed attempts are just counted (the code is discarded) so your headers can show how hard a problem fought back.</p></details>
+    <details><summary>What if a push fails while I'm offline?</summary><p>It's queued and retried automatically every few minutes. The extension badge shows the pending count.</p></details>
+    <details><summary>Which languages are supported?</summary><p>All LeetCode languages — correct file extensions and comment syntax for each (Java, Python, C++, Go, Rust, TypeScript, SQL, and the rest).</p></details>
+    <details><summary>Is Grindlog affiliated with LeetCode?</summary><p>No. Grindlog is an independent open-source project and is not affiliated with or endorsed by LeetCode.</p></details>
+  </section>
+
+  <section class="wrap" style="text-align:center" id="install">
+    <h2 class="section">Start logging the grind</h2>
+    <a class="cta" href="INSTALL_URL_PLACEHOLDER">Add Grindlog to Chrome</a>
+    <span class="cta-sub">Replace this link with your Chrome Web Store URL after publishing.</span>
+  </section>
+
+  <footer>
+    Grindlog · open source ·
+    <a href="privacy.html">Privacy</a>
+    <a href="https://github.com/Chaits-i21/grindlog">GitHub</a>
+  </footer>
+
+</body>
+</html>

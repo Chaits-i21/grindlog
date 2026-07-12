@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Grindlog — Options</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 640px; margin: 40px auto; padding: 0 20px; color: #222; }
+    h1 { font-size: 22px; }
+    h2 { font-size: 17px; margin-top: 32px; }
+    label { display: block; margin-top: 14px; font-weight: 600; font-size: 14px; }
+    input { width: 100%; padding: 8px 10px; margin-top: 4px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; box-sizing: border-box; }
+    button { margin-top: 16px; margin-right: 8px; padding: 8px 16px; border: none; border-radius: 6px; background: #2cbb5d; color: #fff; font-size: 14px; cursor: pointer; }
+    button.secondary { background: #555; }
+    button:disabled { background: #aaa; cursor: default; }
+    .hint { font-size: 12px; color: #666; margin-top: 4px; }
+    #status, #backfill-status { margin-top: 12px; font-size: 14px; white-space: pre-wrap; }
+    .ok { color: #1a8a44; }
+    .err { color: #d33; }
+    @media (prefers-color-scheme: dark) {
+      body { background: #1b1b1b; color: #ddd; }
+      input { background: #2a2a2a; border-color: #444; color: #ddd; }
+      .hint { color: #999; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Grindlog — Settings</h1>
+
+  <label for="token">GitHub Personal Access Token</label>
+  <input type="password" id="token" placeholder="github_pat_…">
+  <div class="hint">Create a <b>fine-grained</b> token scoped to only your solutions repo, with <b>Contents: Read and write</b> permission.</div>
+
+  <label for="owner">Repository owner (your GitHub username)</label>
+  <input type="text" id="owner" placeholder="your-username">
+
+  <label for="repo">Repository name</label>
+  <input type="text" id="repo" placeholder="leetcode-solutions">
+
+  <label for="branch">Branch</label>
+  <input type="text" id="branch" placeholder="main">
+
+  <button id="save">Save</button>
+  <button id="test" class="secondary">Test connection</button>
+  <div id="status"></div>
+
+  <h2>Import past submissions</h2>
+  <p class="hint">
+    One-time backfill: fetches all your past <b>Accepted</b> submissions from LeetCode
+    (you must be logged in to leetcode.com in this browser) and pushes them through the
+    same pipeline. Duplicates are skipped automatically. This is throttled (~2s per
+    solution) to stay well within API limits — a large history takes a while; keep this tab open.
+  </p>
+  <button id="backfill">Import past submissions</button>
+  <button id="backfill-stop" class="secondary" disabled>Stop</button>
+  <div id="backfill-status"></div>
+
+  <script type="module" src="options.js"></script>
+</body>
+</html>

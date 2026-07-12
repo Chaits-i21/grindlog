@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Grindlog — Privacy Policy</title>
+  <link rel="icon" href="icon128.png">
+  <style>
+    body { margin: 0; background: #14171c; color: #e8eaed; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; line-height: 1.65; }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 56px 24px 96px; }
+    h1 { font-size: 30px; } h2 { font-size: 19px; margin-top: 36px; }
+    p, li { color: #9aa4af; font-size: 15.5px; }
+    b, code { color: #e8eaed; }
+    code { background: #262c35; padding: 2px 6px; border-radius: 6px; font-size: 13.5px; }
+    a { color: #6ecf94; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Grindlog Privacy Policy</h1>
+    <p><i>Last updated: July 2026</i></p>
+
+    <p><b>The short version: Grindlog collects nothing.</b> It has no servers, no analytics, no accounts, and no tracking of any kind. Everything happens in your browser.</p>
+
+    <h2>What Grindlog stores, and where</h2>
+    <ul>
+      <li><b>Your GitHub token and repository settings</b> — stored in Chrome's extension storage (<code>chrome.storage.sync</code>) on your device / Chrome profile. Never sent anywhere except GitHub's API.</li>
+      <li><b>Per-problem solve tracking</b> (time opened, failed-attempt counts) and the retry queue — stored locally in <code>chrome.storage.local</code> on your device.</li>
+    </ul>
+
+    <h2>What Grindlog sends over the network</h2>
+    <ul>
+      <li><b>To <code>leetcode.com</code></b> — requests for problem metadata (statement, difficulty, topics, hints) and, if you use the import feature, your own submission history. These use your existing LeetCode login session; Grindlog never sees your LeetCode password.</li>
+      <li><b>To <code>api.github.com</code></b> — your solution files and generated READMEs, committed to the repository <i>you</i> configured, authenticated with the token <i>you</i> created.</li>
+    </ul>
+    <p>That is the complete list. Grindlog makes no other network requests.</p>
+
+    <h2>What Grindlog does not do</h2>
+    <ul>
+      <li>No data is sent to the developer or any third party.</li>
+      <li>No analytics, telemetry, cookies, or fingerprinting.</li>
+      <li>No reading of browsing activity outside <code>leetcode.com</code> problem pages.</li>
+      <li>Your code is never stored anywhere except your own GitHub repository.</li>
+    </ul>
+
+    <h2>Your control</h2>
+    <p>Removing the extension deletes all locally stored data. You can revoke the GitHub token at any time from your GitHub settings, which immediately cuts off Grindlog's ability to push.</p>
+
+    <h2>Contact</h2>
+    <p>Questions or concerns? Open an issue on the <a href="https://github.com/Chaits-i21/grindlog">GitHub repository</a>.</p>
+  </div>
+</body>
+</html>
