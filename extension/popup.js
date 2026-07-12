@@ -32,11 +32,22 @@ async function render() {
 
   const resp = await chrome.runtime.sendMessage({ type: 'GET_QUEUE_COUNT' });
   if (resp && resp.count > 0) {
-    $('queue').innerHTML = `<span class="err">${resp.count} push(es) queued</span> — retrying every 5 min.`;
+    const why = resp.lastError ? `<br><small>Last error: ${esc(resp.lastError)}</small>` : '';
+    $('queue').innerHTML = `<span class="err">${resp.count} push(es) queued</span>${why}`;
+    $('retry').style.display = 'inline-block';
   } else {
     $('queue').textContent = '';
+    $('retry').style.display = 'none';
   }
 }
 
 $('options').addEventListener('click', () => chrome.runtime.openOptionsPage());
+$('retry').addEventListener('click', async () => {
+  $('retry').disabled = true;
+  $('retry').textContent = 'Retrying…';
+  await chrome.runtime.sendMessage({ type: 'RETRY_QUEUE' });
+  $('retry').disabled = false;
+  $('retry').textContent = 'Retry now';
+  render();
+});
 render();

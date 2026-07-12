@@ -26,6 +26,16 @@ async function setBadge(text, color) {
 
 // ---- core push ----
 
+// Every push writes the same two files (index.json, root README). Concurrent pushes
+// (live submission + retry queue + backfill) race on those files' shas and 409/422
+// each other, so ALL pushes are serialized through this lock.
+let pushLock = Promise.resolve();
+function serialized(fn) {
+  const run = pushLock.then(fn, fn);
+  pushLock = run.then(() => {}, () => {});
+  return run;
+}
+
 async function pushToGitHub(payload, config) {
   const gh = new GitHub(config);
   const { meta, stats = {}, extra = {} } = payload;
@@ -53,8 +63,9 @@ async function pushToGitHub(payload, config) {
   const fileContent = buildSolutionFile(payload);
   const commitTitle = `${meta.frontendId}. ${meta.title}`;
 
-  // 1. Solution file — new path every time, never overwritten.
-  await gh.putFile(
+  // 1. Solution file — new path per submission. upsert (not put) so retrying a push
+  // that previously half-succeeded finds the existing file and heals instead of 422ing.
+  await gh.upsertFile(
     `${problemKey}/${filename}`,
     fileContent,
     `Add solution: ${commitTitle}${stats.runtime ? ` (${stats.runtime})` : ''}`
@@ -118,20 +129,33 @@ async function enqueue(payload) {
   await setQueue(queue);
 }
 
+let queueBusy = false;
 async function processQueue() {
-  const config = await getConfig();
-  if (!config) return;
-  let queue = await getQueue();
-  const remaining = [];
-  for (const item of queue) {
-    try {
-      const result = await pushToGitHub(item.payload, config);
-      await recordLastPush(result, item.payload);
-    } catch {
-      remaining.push(item); // still failing — keep for next alarm
+  if (queueBusy) return;
+  queueBusy = true;
+  try {
+    const config = await getConfig();
+    if (!config) return;
+    const queue = await getQueue();
+    const remaining = [];
+    for (const item of queue) {
+      try {
+        const result = await serialized(() => pushToGitHub(item.payload, config));
+        await recordLastPush(result, item.payload);
+        await chrome.storage.local.remove('lastQueueError');
+      } catch (e) {
+        item.attempts = (item.attempts || 0) + 1;
+        await chrome.storage.local.set({ lastQueueError: e.message });
+        if (item.attempts < 10) {
+          remaining.push(item); // still failing — keep for next alarm
+        }
+      }
+      await new Promise((r) => setTimeout(r, 500)); // be gentle with rate limits
     }
+    await setQueue(remaining);
+  } finally {
+    queueBusy = false;
   }
-  await setQueue(remaining);
 }
 
 chrome.alarms.onAlarm.addListener((alarm) => {
@@ -161,9 +185,10 @@ async function handlePush(payload) {
     return { ok: false, error: 'Not configured — open the extension options and add your GitHub token/repo.' };
   }
   try {
-    const result = await pushToGitHub(payload, config);
+    const result = await serialized(() => pushToGitHub(payload, config));
     await recordLastPush(result, payload);
     // Retry anything that queued up earlier while we know GitHub is reachable.
+    // (Safe to fire-and-forget: processQueue serializes through the same lock.)
     processQueue();
     return result;
   } catch (e) {
@@ -194,7 +219,12 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     return true;
   }
   if (msg.type === 'GET_QUEUE_COUNT') {
-    getQueue().then((q) => sendResponse({ count: q.length }));
+    Promise.all([getQueue(), chrome.storage.local.get('lastQueueError')])
+      .then(([q, { lastQueueError }]) => sendResponse({ count: q.length, lastError: lastQueueError || null }));
+    return true;
+  }
+  if (msg.type === 'RETRY_QUEUE') {
+    processQueue().then(() => getQueue()).then((q) => sendResponse({ count: q.length }));
     return true;
   }
   return false;
@@ -207,5 +237,12 @@ chrome.runtime.onInstalled.addListener((details) => {
   }
 });
 
-// Restore badge state when the worker wakes up.
-getQueue().then((q) => setBadge(q.length ? String(q.length) : '', '#ef4743'));
+// Restore badge + retry alarm when the worker wakes up (extension reloads clear
+// alarms, which previously left a non-empty queue stranded with no retry timer).
+getQueue().then((q) => {
+  setBadge(q.length ? String(q.length) : '', '#ef4743');
+  if (q.length) {
+    chrome.alarms.create(RETRY_ALARM, { periodInMinutes: 5 });
+    processQueue();
+  }
+});
