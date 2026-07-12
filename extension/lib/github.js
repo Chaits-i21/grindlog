@@ -34,8 +34,8 @@ export class GitHub {
     if (resp.status === 404) return { status: 404, json: null };
     const json = await resp.json().catch(() => null);
     if (!resp.ok) {
-      const msg = (json && json.message) || `HTTP ${resp.status}`;
-      throw new Error(`GitHub API error: ${msg}`);
+      const msg = (json && json.message) || '';
+      throw new Error(`GitHub API error (HTTP ${resp.status})${msg ? `: ${msg}` : ''}`);
     }
     return { status: resp.status, json };
   }
@@ -64,11 +64,23 @@ export class GitHub {
     return json;
   }
 
-  // Create-or-update convenience: fetches the current sha first.
-  async upsertFile(path, text, message) {
-    const existing = await this.getFile(path);
-    if (existing && existing.text === text) return { skipped: true };
-    return this.putFile(path, text, message, existing ? existing.sha : undefined);
+  // Create-or-update convenience: fetches the current sha first. Retries on 409 —
+  // rapid sequential commits make GitHub occasionally read a stale branch tip and
+  // reject an otherwise-valid write — and on transient 5xx/network errors.
+  async upsertFile(path, text, message, tries = 4) {
+    let lastErr;
+    for (let i = 0; i < tries; i++) {
+      const existing = await this.getFile(path);
+      if (existing && existing.text === text) return { skipped: true };
+      try {
+        return await this.putFile(path, text, message, existing ? existing.sha : undefined);
+      } catch (e) {
+        lastErr = e;
+        if (!/HTTP (409|422|5\d\d)|network|fetch/i.test(String(e.message))) throw e;
+        await new Promise((r) => setTimeout(r, 1200 * (i + 1)));
+      }
+    }
+    throw lastErr;
   }
 
   async repoInfo() {

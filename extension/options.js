@@ -173,7 +173,7 @@ $('backfill').addEventListener('click', async () => {
           // Cool off instead of burning the rest of the import.
           if (consecutiveFailures >= 3) {
             setStatus(backfillStatusEl,
-              `GitHub is rate-limiting — pausing 2 minutes before continuing (${seen}/${all.length} processed)…`, true);
+              `GitHub is pushing back (rate limit or commit conflicts) — pausing 2 minutes, then continuing (${seen}/${all.length} processed)…`, true);
             await sleep(120000);
             consecutiveFailures = 0;
           }
