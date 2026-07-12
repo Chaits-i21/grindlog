@@ -150,7 +150,10 @@
       const extra = {};
       if (track) {
         extra.failedAttempts = track.failedAttempts;
-        extra.minutes = Math.max(1, Math.round((p.submittedAt - track.openedAt) / 60000));
+        const minutes = Math.max(1, Math.round((p.submittedAt - track.openedAt) / 60000));
+        // Beyond 8h the tab was likely just left open across sessions — the number
+        // is meaningless, so omit it rather than record "Solved in 2880 min".
+        if (minutes <= 480) extra.minutes = minutes;
       }
       if (daily && daily.slug === p.slug) extra.dailyDate = daily.date;
 

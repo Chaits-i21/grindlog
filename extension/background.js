@@ -125,7 +125,7 @@ async function setQueue(queue) {
 
 async function enqueue(payload) {
   const queue = await getQueue();
-  queue.push({ payload, queuedAt: Date.now() });
+  queue.push({ id: crypto.randomUUID(), payload, queuedAt: Date.now() });
   await setQueue(queue);
 }
 
@@ -162,7 +162,11 @@ async function processQueue() {
       }
       await new Promise((r) => setTimeout(r, 1500)); // be gentle with rate limits
     }
-    await setQueue(remaining);
+    // A live submission may have failed and enqueued itself while we were working
+    // on our snapshot — merge those newcomers in rather than clobbering them.
+    const snapshotIds = new Set(queue.map((it) => it.id));
+    const newcomers = (await getQueue()).filter((it) => !snapshotIds.has(it.id));
+    await setQueue([...remaining, ...newcomers]);
   } finally {
     queueBusy = false;
   }
