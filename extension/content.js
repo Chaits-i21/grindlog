@@ -6,6 +6,17 @@
   const SOURCE = 'grindlog';
   const libReady = import(chrome.runtime.getURL('lib/format.js'));
 
+  // When the extension is reloaded/updated, content scripts in already-open tabs are
+  // orphaned: their chrome.* APIs throw "Extension context invalidated". Detect that
+  // and shut down quietly instead of spraying console errors.
+  function contextAlive() {
+    try {
+      return !!(chrome.runtime && chrome.runtime.id);
+    } catch {
+      return false;
+    }
+  }
+
   function currentSlug() {
     const m = window.location.pathname.match(/\/problems\/([^/]+)/);
     return m ? m[1] : null;
@@ -18,36 +29,41 @@
   }
 
   async function getTrack(slug) {
+    if (!contextAlive()) return null;
     const key = trackKey(slug);
     const data = await chrome.storage.local.get(key);
     return data[key] || null;
   }
 
   async function ensureTrackStarted(slug) {
-    if (!slug) return;
+    if (!slug || !contextAlive()) return;
     if (!(await getTrack(slug))) {
       await chrome.storage.local.set({ [trackKey(slug)]: { openedAt: Date.now(), failedAttempts: 0 } });
     }
   }
 
   async function recordFailedAttempt(slug) {
-    if (!slug) return;
+    if (!slug || !contextAlive()) return;
     const track = (await getTrack(slug)) || { openedAt: Date.now(), failedAttempts: 0 };
     track.failedAttempts += 1;
     await chrome.storage.local.set({ [trackKey(slug)]: track });
   }
 
   async function clearTrack(slug) {
-    if (slug) await chrome.storage.local.remove(trackKey(slug));
+    if (slug && contextAlive()) await chrome.storage.local.remove(trackKey(slug));
   }
 
   ensureTrackStarted(currentSlug());
   // LeetCode is a SPA — watch for slug changes without a full page load.
   let lastPath = window.location.pathname;
-  setInterval(() => {
+  const spaWatcher = setInterval(() => {
+    if (!contextAlive()) {
+      clearInterval(spaWatcher); // orphaned by an extension reload — stand down
+      return;
+    }
     if (window.location.pathname !== lastPath) {
       lastPath = window.location.pathname;
-      ensureTrackStarted(currentSlug());
+      ensureTrackStarted(currentSlug()).catch(() => {});
     }
   }, 2000);
 
@@ -123,6 +139,7 @@
   // ---- main flow ----
 
   async function handleAccepted(p) {
+    if (!contextAlive()) return; // orphaned script — the fresh one will handle it
     try {
       const [meta, daily, track] = await Promise.all([
         fetchQuestionMeta(p.slug),
