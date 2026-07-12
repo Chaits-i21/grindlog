@@ -138,19 +138,29 @@ async function processQueue() {
     if (!config) return;
     const queue = await getQueue();
     const remaining = [];
-    for (const item of queue) {
+    let consecutiveFailures = 0;
+    for (let i = 0; i < queue.length; i++) {
+      const item = queue[i];
       try {
         const result = await serialized(() => pushToGitHub(item.payload, config));
         await recordLastPush(result, item.payload);
         await chrome.storage.local.remove('lastQueueError');
+        consecutiveFailures = 0;
       } catch (e) {
         item.attempts = (item.attempts || 0) + 1;
         await chrome.storage.local.set({ lastQueueError: e.message });
         if (item.attempts < 10) {
           remaining.push(item); // still failing — keep for next alarm
         }
+        consecutiveFailures += 1;
+        // 3 failures in a row usually means GitHub is rate-limiting us. Hammering
+        // the rest of the queue makes it worse — park everything for the next alarm.
+        if (consecutiveFailures >= 3) {
+          remaining.push(...queue.slice(i + 1));
+          break;
+        }
       }
-      await new Promise((r) => setTimeout(r, 500)); // be gentle with rate limits
+      await new Promise((r) => setTimeout(r, 1500)); // be gentle with rate limits
     }
     await setQueue(remaining);
   } finally {

@@ -138,6 +138,7 @@ $('backfill').addEventListener('click', async () => {
     }
     all.reverse();
 
+    let consecutiveFailures = 0;
     for (const s of all) {
       if (stopRequested) break;
       seen += 1;
@@ -163,6 +164,20 @@ $('backfill').addEventListener('click', async () => {
         if (resp && resp.ok && resp.skipped) skipped += 1;
         else if (resp && resp.ok) pushed += 1;
         else failed += 1;
+
+        if (resp && resp.ok) {
+          consecutiveFailures = 0;
+        } else {
+          consecutiveFailures += 1;
+          // Repeated failures usually mean GitHub's secondary rate limit kicked in.
+          // Cool off instead of burning the rest of the import.
+          if (consecutiveFailures >= 3) {
+            setStatus(backfillStatusEl,
+              `GitHub is rate-limiting — pausing 2 minutes before continuing (${seen}/${all.length} processed)…`, true);
+            await sleep(120000);
+            consecutiveFailures = 0;
+          }
+        }
       } catch {
         failed += 1;
       }
