@@ -68,8 +68,8 @@ onboarding.html/js           — opens on install; guided setup with embedded co
 icons/                       — extension icons (16/32/48/128)
 ```
 
-`site/` holds the public landing page and privacy policy (host on GitHub Pages —
-Settings → Pages → deploy from the `site/` folder or a `gh-pages` branch).
+`docs/` holds the public landing page and privacy policy (host on GitHub Pages —
+Settings → Pages → deploy from the `docs/` folder or a `gh-pages` branch).
 `store-assets/` holds the 512px icon for the Chrome Web Store listing.
 
 Interception (not DOM scraping) is used because the submit POST body is the only
@@ -91,8 +91,8 @@ It survives LeetCode UI redesigns.
 ## Launch checklist (Chrome Web Store)
 
 1. Register a [Chrome Web Store developer account](https://chrome.google.com/webstore/devconsole) ($5 one-time).
-2. Host `site/` on GitHub Pages; replace `INSTALL_URL_PLACEHOLDER` and
-   `GITHUB_REPO_PLACEHOLDER` in `site/index.html` and `site/privacy.html`.
+2. Host `docs/` on GitHub Pages; replace `INSTALL_URL_PLACEHOLDER` and
+   `GITHUB_REPO_PLACEHOLDER` in `docs/index.html` and `docs/privacy.html`.
 3. Zip the `extension/` folder contents (not the folder itself) and upload.
 4. Listing needs: name **Grindlog** (don't put "LeetCode" in the name — trademark),
    description (mentioning LeetCode here is fine), `store-assets/icon512.png`,

@@ -17,10 +17,10 @@ window; ship it the day 1.0 is approved.**
       extension in `chrome://extensions` afterwards).
 
 ### Hosting (needed for the store listing)
-- [ ] GitHub Pages: Settings → Pages → deploy `site/` (move `site/*` to `/docs` or
+- [ ] GitHub Pages: Settings → Pages → deploy `docs/` (move `docs/*` to `/docs` or
       use a `gh-pages` branch — Pages only serves `/`, `/docs`, or a branch root).
 - [ ] Verify `https://<you>.github.io/grindlog/` and `/privacy.html` load.
-- [ ] Replace `GITHUB_REPO_PLACEHOLDER` in `site/index.html` + `site/privacy.html`.
+- [ ] Replace `GITHUB_REPO_PLACEHOLDER` in `docs/index.html` + `docs/privacy.html`.
       (`INSTALL_URL_PLACEHOLDER` waits until the store URL exists.)
 
 ### Final smoke test (15 min, use a throwaway test repo)
