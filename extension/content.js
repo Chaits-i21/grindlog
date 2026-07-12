@@ -106,6 +106,23 @@
     };
   }
 
+  // Fallback when the interceptor couldn't read the submit request body: LeetCode's
+  // own API returns the full submission (code, lang, stats) by id.
+  async function fetchSubmissionDetails(submissionId) {
+    const data = await graphql(
+      `query submissionDetails($submissionId: Int!) {
+         submissionDetails(submissionId: $submissionId) {
+           code timestamp runtimeDisplay memoryDisplay
+           runtimePercentile memoryPercentile
+           lang { name }
+           question { titleSlug }
+         }
+       }`,
+      { submissionId: Number(submissionId) }
+    );
+    return data.submissionDetails;
+  }
+
   async function fetchDailySlugAndDate() {
     try {
       const data = await graphql(
@@ -140,7 +157,25 @@
 
   async function handleAccepted(p) {
     if (!contextAlive()) return; // orphaned script — the fresh one will handle it
+    console.log('[Grindlog] accepted event for submission', p.submissionId, p.code ? '(code captured)' : '(fetching code from API)');
     try {
+      // Body capture can miss (non-string request bodies, races) — recover the
+      // submission from LeetCode's API so the push never depends on interception luck.
+      if (!p.code && p.submissionId) {
+        const det = await fetchSubmissionDetails(p.submissionId);
+        if (!det || !det.code) throw new Error('could not retrieve submission code from LeetCode');
+        p.code = det.code;
+        p.lang = p.lang || (det.lang && det.lang.name) || 'unknown';
+        p.slug = p.slug || (det.question && det.question.titleSlug);
+        if (det.timestamp) p.submittedAt = det.timestamp * 1000;
+        p.stats = {
+          runtime: p.stats.runtime || det.runtimeDisplay || null,
+          memory: p.stats.memory || det.memoryDisplay || null,
+          runtimeBeats: p.stats.runtimeBeats ?? (det.runtimePercentile != null ? Math.round(det.runtimePercentile * 100) / 100 : null),
+          memoryBeats: p.stats.memoryBeats ?? (det.memoryPercentile != null ? Math.round(det.memoryPercentile * 100) / 100 : null),
+        };
+      }
+      if (!p.slug) throw new Error('could not determine which problem was submitted');
       const [meta, daily, track] = await Promise.all([
         fetchQuestionMeta(p.slug),
         fetchDailySlugAndDate(),
@@ -169,6 +204,7 @@
           extra,
         },
       });
+      console.log('[Grindlog] push result:', response);
 
       if (response && response.ok) {
         await clearTrack(p.slug);
@@ -194,4 +230,6 @@
     if (e.data.type === 'accepted') handleAccepted(e.data.payload);
     else if (e.data.type === 'attempt') recordFailedAttempt(e.data.payload.slug);
   });
+
+  console.log('[Grindlog] content script ready on', window.location.pathname);
 })();

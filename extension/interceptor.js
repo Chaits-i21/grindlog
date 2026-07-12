@@ -34,6 +34,7 @@
       slug: m[1],
       submittedAt: Date.now(),
     });
+    console.log('[Grindlog] captured submit for', m[1], '— submission', responseJson.submission_id);
   }
 
   function handleCheckResponse(url, json) {
@@ -45,15 +46,18 @@
 
     const sub = pending.get(id);
     pending.delete(id);
+    console.log('[Grindlog] verdict for submission', id, '→', json.status_msg);
 
-    if (json.status_msg === 'Accepted' && sub && sub.code) {
+    if (json.status_msg === 'Accepted') {
+      // Post even when the request body wasn't captured (sub missing/incomplete) —
+      // content.js falls back to LeetCode's submissionDetails API for the code.
       post('accepted', {
         submissionId: id,
-        code: sub.code,
-        lang: sub.lang,
-        questionId: sub.questionId,
-        slug: sub.slug,
-        submittedAt: sub.submittedAt,
+        code: (sub && sub.code) || null,
+        lang: (sub && sub.lang) || null,
+        questionId: (sub && sub.questionId) || null,
+        slug: (sub && sub.slug) || slugFromLocation(),
+        submittedAt: (sub && sub.submittedAt) || Date.now(),
         stats: {
           runtime: json.status_runtime || null,        // e.g. "21 ms"
           memory: json.status_memory || null,          // e.g. "48.27 MB"
@@ -137,4 +141,6 @@
     }
     return origSend.apply(this, arguments);
   };
+
+  console.log('[Grindlog] interceptor armed on', window.location.pathname);
 })();
