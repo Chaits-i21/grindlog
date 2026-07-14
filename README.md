@@ -88,22 +88,6 @@ It survives LeetCode UI redesigns.
 - [ ] Backfill on a fresh repo imports past accepted solutions oldest-first
 - [ ] `git clone` + `git pull` gives you the local copy
 
-## Launch checklist (Chrome Web Store)
-
-1. Register a [Chrome Web Store developer account](https://chrome.google.com/webstore/devconsole) ($5 one-time).
-2. Host `docs/` on GitHub Pages; replace `INSTALL_URL_PLACEHOLDER` and
-   `GITHUB_REPO_PLACEHOLDER` in `docs/index.html` and `docs/privacy.html`.
-3. Zip the `extension/` folder contents (not the folder itself) and upload.
-4. Listing needs: name **Grindlog** (don't put "LeetCode" in the name — trademark),
-   description (mentioning LeetCode here is fine), `store-assets/icon512.png`,
-   1–5 screenshots at 1280×800 (take them of the onboarding page, a push toast on
-   LeetCode, and a populated GitHub repo), the privacy policy URL from step 2.
-5. Permissions justification field: `leetcode.com` = read your own submissions +
-   problem metadata; `api.github.com` = commit solutions to your chosen repo;
-   `storage` = settings; `alarms` = retrying failed pushes.
-6. Single-purpose statement: "Automatically commits the user's accepted LeetCode
-   solutions to their own GitHub repository."
-7. Bump `version` in manifest.json to `1.0.0` when you submit.
 
 ## Notes & limits
 
